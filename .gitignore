@@ -1,0 +1,9 @@
+.next
+node_modules
+.env.local
+.vercel
+.tools
+*.log
+.tmp-*.log
+.tmp-extracted-app.js
+tsconfig.tsbuildinfo

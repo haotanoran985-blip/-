@@ -1,0 +1,813 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>第二双眼睛 AI UI 评审工作台</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="workspace-head">
+        <div class="brand-block">
+          <div class="brand-mark">
+            <img src="icon.png" alt="第二双眼睛图标" class="brand-icon" />
+            <span class="eyebrow brand-eyebrow">第二双眼睛</span>
+          </div>
+          <h1 id="hero-mode-title">界面评审工作台</h1>
+          <p id="hero-mode-copy" class="hero-copy">
+            从设计质量视角评估信息层级、内容清晰度、视觉平衡与可访问性。
+          </p>
+        </div>
+
+        <div class="mode-switch" role="tablist" aria-label="工作模式切换">
+          <button
+            type="button"
+            class="mode-tab is-active"
+            id="mode-review"
+            data-mode="review"
+            role="tab"
+            aria-selected="true"
+            aria-controls="view-review"
+          >
+            界面评审
+          </button>
+          <button
+            type="button"
+            class="mode-tab"
+            id="mode-diagnosis"
+            data-mode="diagnosis"
+            role="tab"
+            aria-selected="false"
+            aria-controls="view-diagnosis"
+          >
+            可用性诊断
+          </button>
+          <button
+            type="button"
+            class="mode-tab"
+            id="mode-prompt"
+            data-mode="prompt"
+            role="tab"
+            aria-selected="false"
+            aria-controls="view-prompt"
+          >
+            风格提示词
+          </button>
+        </div>
+      </header>
+
+      <div class="workspace-grid">
+        <aside class="workspace-sidebar workspace-sidebar-left" aria-label="评审设置">
+          <form id="review-form" class="sidebar-stack">
+            <section class="card card-hero upload-card">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">上传截图</p>
+                  <h2>上传待评审界面</h2>
+                </div>
+              </div>
+
+              <input id="screenshot-input" name="screenshot" type="file" accept="image/*" hidden />
+
+              <div
+                class="dropzone"
+                id="dropzone"
+                tabindex="0"
+                role="button"
+                aria-label="拖拽或点击上传截图"
+              >
+                <div class="drop-visual">
+                  <span class="drop-badge">UI</span>
+                </div>
+                <div class="drop-copy">
+                  <strong>上传一张 UI 截图开始分析</strong>
+                  <p>支持 PNG、JPG、WEBP，建议使用完整清晰的界面截图。</p>
+                </div>
+                <div class="upload-actions">
+                  <button type="button" class="button button-primary" id="choose-image">
+                    选择图片
+                  </button>
+                  <button type="button" class="button button-secondary" id="paste-screenshot">
+                    粘贴截图
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">当前状态</p>
+                  <h2>上传状态</h2>
+                </div>
+              </div>
+
+              <div class="status-list">
+                <div class="status-item">
+                  <span>上传状态</span>
+                  <strong id="upload-status">等待上传</strong>
+                </div>
+                <div class="status-item">
+                  <span>分辨率</span>
+                  <strong id="resolution-status">尚未读取</strong>
+                </div>
+                <div class="status-item">
+                  <span>页面类型</span>
+                  <strong id="page-type-status">待识别</strong>
+                </div>
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">评审设置</p>
+                  <h2>分析条件</h2>
+                </div>
+              </div>
+
+              <div class="field-grid">
+                <label class="field">
+                  <span>界面类型</span>
+                  <select id="interface-type" name="interfaceType">
+                    <option value="landing">落地页</option>
+                    <option value="dashboard">仪表盘</option>
+                    <option value="mobile">移动应用</option>
+                    <option value="checkout">结算页</option>
+                    <option value="form">表单流程</option>
+                    <option value="commerce">商品详情页</option>
+                    <option value="settings">设置或后台</option>
+                    <option value="article">文章或内容页</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span>主要目标</span>
+                  <select id="primary-goal" name="primaryGoal">
+                    <option value="convert">推动转化</option>
+                    <option value="inform" selected>清晰传达信息</option>
+                    <option value="explore">支持探索浏览</option>
+                    <option value="manage">管理复杂数据</option>
+                    <option value="onboard">引导首次使用</option>
+                  </select>
+                </label>
+
+                <label class="field field-full">
+                  <span>平台选择</span>
+                  <select id="device-type" name="deviceType">
+                    <option value="desktop" selected>桌面 Web</option>
+                    <option value="mobile">移动 App</option>
+                    <option value="tablet">平板</option>
+                    <option value="responsive">响应式 Web</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="priority-stack">
+                <p class="subtle-label">重点关注项</p>
+                <div class="check-grid">
+                  <label class="check-pill">
+                    <input type="checkbox" name="priority" value="clarity" checked />
+                    <span>清晰度</span>
+                  </label>
+                  <label class="check-pill">
+                    <input type="checkbox" name="priority" value="accessibility" checked />
+                    <span>可访问性</span>
+                  </label>
+                  <label class="check-pill">
+                    <input type="checkbox" name="priority" value="conversion" checked />
+                    <span>行动路径</span>
+                  </label>
+                  <label class="check-pill">
+                    <input type="checkbox" name="priority" value="consistency" checked />
+                    <span>一致性</span>
+                  </label>
+                  <label class="check-pill">
+                    <input type="checkbox" name="priority" value="density" />
+                    <span>信息密度</span>
+                  </label>
+                  <label class="check-pill">
+                    <input type="checkbox" name="priority" value="trust" />
+                    <span>信任感</span>
+                  </label>
+                </div>
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">补充背景</p>
+                  <h2>给分析更多上下文</h2>
+                </div>
+              </div>
+
+              <label class="field field-full">
+                <span>业务背景 / 用户场景</span>
+                <textarea
+                  id="design-context"
+                  name="designContext"
+                  rows="6"
+                  placeholder="例如：这是一个面向运营负责人的工作台，需要帮助他们快速识别关键数据变化并推进下一步动作。"
+                ></textarea>
+              </label>
+            </section>
+
+            <div class="action-dock">
+              <button type="submit" id="analyze-button" class="button button-primary" disabled>
+                开始评审
+              </button>
+              <button type="button" id="reset-review" class="button button-secondary">
+                重置
+              </button>
+              <p id="analysis-feedback" class="action-feedback" role="status" aria-live="polite">
+                等待上传截图，开始一次新的界面评审。
+              </p>
+            </div>
+          </form>
+        </aside>
+
+        <main class="workspace-main" id="workspace-main" aria-busy="false" data-mode="review">
+          <section class="card preview-card mode-media-card">
+            <div class="card-head card-head-spread">
+              <div>
+                <p class="section-kicker">截图预览</p>
+                <h2>界面预览</h2>
+              </div>
+
+              <div class="segmented-control" role="tablist" aria-label="截图视图切换">
+                <button
+                  type="button"
+                  class="segmented-button is-active"
+                  data-preview-mode="original"
+                  aria-selected="true"
+                >
+                  原图
+                </button>
+                <button
+                  type="button"
+                  class="segmented-button"
+                  data-preview-mode="annotated"
+                  aria-selected="false"
+                  disabled
+                >
+                  标注图
+                </button>
+              </div>
+            </div>
+
+            <div class="preview-stage" id="preview-stage">
+              <img id="preview-image" alt="上传的界面原图预览" hidden />
+              <img id="preview-annotated" alt="带标注的界面截图预览" hidden />
+
+              <div class="preview-empty" id="preview-placeholder">
+                <div class="empty-visual"></div>
+                <span id="preview-empty-tag" class="empty-tag">等待上传</span>
+                <strong id="preview-empty-title">上传一张 UI 截图开始分析</strong>
+                <p id="preview-empty-copy">
+                  这里会展示原图、标注结果和当前评审所使用的文件信息。
+                </p>
+              </div>
+            </div>
+
+            <div class="preview-meta">
+              <div>
+                <span>文件</span>
+                <strong id="preview-file-name">等待上传截图</strong>
+              </div>
+              <div>
+                <span>状态</span>
+                <strong id="preview-file-meta">等待上传</strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="card workflow-card mode-media-card">
+            <div class="card-head">
+              <div>
+                <p class="section-kicker">分析进度</p>
+                <h2>分析流程</h2>
+              </div>
+            </div>
+
+            <ol class="step-flow" id="analysis-steps">
+              <li class="step-item" data-step="structure" data-state="idle">
+                <span class="step-index">01</span>
+                <div>
+                  <strong>识别界面结构</strong>
+                  <p>等待开始</p>
+                </div>
+              </li>
+              <li class="step-item" data-step="hierarchy" data-state="idle">
+                <span class="step-index">02</span>
+                <div>
+                  <strong>评估视觉层级</strong>
+                  <p>等待开始</p>
+                </div>
+              </li>
+              <li class="step-item" data-step="path" data-state="idle">
+                <span class="step-index">03</span>
+                <div>
+                  <strong>分析行动路径</strong>
+                  <p>等待开始</p>
+                </div>
+              </li>
+              <li class="step-item" data-step="advice" data-state="idle">
+                <span class="step-index">04</span>
+                <div>
+                  <strong>生成优化建议</strong>
+                  <p>等待开始</p>
+                </div>
+              </li>
+            </ol>
+          </section>
+
+          <section class="mode-panel is-active" id="view-review" role="tabpanel" aria-labelledby="mode-review">
+            <article class="card result-card reveal-card">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">评审总结</p>
+                  <h2>总体结论</h2>
+                </div>
+              </div>
+              <p id="summary-copy" class="summary-copy">
+                上传截图并开始评审后，这里会输出针对信息层级、内容清晰度、视觉平衡和可访问性的结构化判断。
+              </p>
+            </article>
+
+            <div class="result-two-up">
+              <article class="card result-card reveal-card">
+                <div class="card-head">
+                  <div>
+                    <p class="section-kicker">优势</p>
+                    <h2>做得好的地方</h2>
+                  </div>
+                </div>
+                <ul id="strength-list" class="content-list">
+                  <li>开始分析后展示当前方案做得好的地方。</li>
+                </ul>
+              </article>
+
+              <article class="card result-card reveal-card">
+                <div class="card-head">
+                  <div>
+                    <p class="section-kicker">问题</p>
+                    <h2>可能存在的问题</h2>
+                  </div>
+                </div>
+                <ul id="risk-list" class="content-list">
+                  <li>开始分析后展示需要重点关注的问题。</li>
+                </ul>
+              </article>
+            </div>
+
+            <article class="card result-card reveal-card">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">建议</p>
+                  <h2>优化建议</h2>
+                </div>
+              </div>
+
+              <div class="priority-columns">
+                <section class="priority-column">
+                  <div class="priority-head">
+                    <span class="priority-dot priority-high"></span>
+                    <strong>高优先级</strong>
+                  </div>
+                  <ul id="high-priority-list" class="content-list compact-list">
+                    <li>分析完成后生成高优先级建议。</li>
+                  </ul>
+                </section>
+
+                <section class="priority-column">
+                  <div class="priority-head">
+                    <span class="priority-dot priority-medium"></span>
+                    <strong>中优先级</strong>
+                  </div>
+                  <ul id="medium-priority-list" class="content-list compact-list">
+                    <li>分析完成后生成中优先级建议。</li>
+                  </ul>
+                </section>
+
+                <section class="priority-column">
+                  <div class="priority-head">
+                    <span class="priority-dot priority-low"></span>
+                    <strong>低优先级</strong>
+                  </div>
+                  <ul id="low-priority-list" class="content-list compact-list">
+                    <li>分析完成后生成低优先级建议。</li>
+                  </ul>
+                </section>
+              </div>
+            </article>
+          </section>
+
+          <section
+            class="mode-panel"
+            id="view-diagnosis"
+            role="tabpanel"
+            aria-labelledby="mode-diagnosis"
+            hidden
+          >
+            <article class="card result-card reveal-card diagnosis-card diagnosis-summary-card">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">首屏理解</p>
+                  <h2>首屏理解分析</h2>
+                </div>
+              </div>
+              <p id="diagnosis-summary" class="summary-copy">
+                开始诊断后，这里会总结首屏理解成本、主操作明确度和任务推进阻力。
+              </p>
+            </article>
+
+            <div class="result-two-up diagnosis-two-up">
+              <article class="card result-card reveal-card diagnosis-card">
+                <div class="card-head">
+                  <div>
+                    <p class="section-kicker">卡点预警</p>
+                    <h2>用户可能卡住的位置</h2>
+                  </div>
+                </div>
+                <ul id="path-list" class="content-list">
+                  <li>开始诊断后展示用户最可能停顿或犹豫的位置。</li>
+                </ul>
+              </article>
+
+              <article class="card result-card reveal-card diagnosis-card">
+                <div class="card-head">
+                  <div>
+                    <p class="section-kicker">阻力判断</p>
+                    <h2>核心阻力点</h2>
+                  </div>
+                </div>
+                <ul id="accessibility-list" class="content-list">
+                  <li>开始诊断后展示造成理解负担或行动迟疑的核心阻力。</li>
+                </ul>
+              </article>
+            </div>
+
+            <article class="card result-card reveal-card diagnosis-card">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">优先动作</p>
+                  <h2>优先优化动作</h2>
+                </div>
+              </div>
+              <ul id="next-pass-list" class="content-list">
+                <li>开始诊断后生成优先处理的优化动作。</li>
+              </ul>
+            </article>
+          </section>
+
+          <section class="mode-panel" id="view-prompt" role="tabpanel" aria-labelledby="mode-prompt" hidden>
+            <article class="card result-card reveal-card prompt-summary-card">
+              <div class="card-head">
+                <div>
+                  <p class="section-kicker">风格分析</p>
+                  <h2>生成相似风格提示词</h2>
+                </div>
+              </div>
+              <p id="prompt-style-summary" class="summary-copy">
+                上传一张图片后，这里会基于当前画面提取风格摘要，并生成可直接用于 AI 绘图模型的提示词。
+              </p>
+            </article>
+
+            <div class="result-two-up prompt-output-grid">
+              <article class="card result-card reveal-card">
+                <div class="card-head">
+                  <div>
+                    <p class="section-kicker">中文提示词</p>
+                    <h2>中文提示词</h2>
+                  </div>
+                </div>
+                <textarea
+                  id="prompt-cn-output"
+                  rows="11"
+                  readonly
+                  aria-label="中文风格提示词"
+                >等待生成中文风格提示词。</textarea>
+              </article>
+
+              <article class="card result-card reveal-card">
+                <div class="card-head">
+                  <div>
+                    <p class="section-kicker">英文提示词</p>
+                    <h2>英文提示词</h2>
+                  </div>
+                </div>
+                <textarea
+                  id="prompt-en-output"
+                  rows="11"
+                  readonly
+                  aria-label="英文风格提示词"
+                >等待生成英文风格提示词。</textarea>
+              </article>
+            </div>
+
+            <article class="card result-card reveal-card">
+              <div class="card-head card-head-spread">
+                <div>
+                  <p class="section-kicker">负面提示词</p>
+                  <h2>负面提示词</h2>
+                </div>
+                <button type="button" id="copy-prompt" class="button button-secondary">
+                  复制提示词
+                </button>
+              </div>
+              <textarea
+                id="prompt-negative-output"
+                rows="6"
+                readonly
+                aria-label="负面提示词"
+              >等待生成负面提示词。</textarea>
+            </article>
+          </section>
+        </main>
+
+        <aside
+          class="workspace-sidebar workspace-sidebar-right"
+          id="workspace-sidebar-right"
+          aria-label="诊断概览"
+          data-mode="review"
+        >
+          <section class="card score-card reveal-card sidebar-review-card">
+            <div class="card-head">
+              <div>
+                <p class="section-kicker">设计评审</p>
+                <h2>总体评分</h2>
+              </div>
+            </div>
+
+            <div class="score-topline">
+              <strong id="overall-score">待生成</strong>
+              <span id="grade-badge" class="grade-badge">等待分析</span>
+            </div>
+
+            <p id="score-summary" class="summary-copy">
+              上传截图后，这里会生成总体评分和一句简明判断。
+            </p>
+
+            <div class="metric-bars">
+              <article class="metric-bar">
+                <div class="metric-label">
+                  <span>层级清晰度</span>
+                  <strong id="metric-hierarchy-value">待分析</strong>
+                </div>
+                <div class="metric-track">
+                  <div id="metric-hierarchy-bar" class="metric-fill is-empty"></div>
+                </div>
+              </article>
+
+              <article class="metric-bar">
+                <div class="metric-label">
+                  <span>内容清晰度</span>
+                  <strong id="metric-clarity-value">待分析</strong>
+                </div>
+                <div class="metric-track">
+                  <div id="metric-clarity-bar" class="metric-fill is-empty"></div>
+                </div>
+              </article>
+
+              <article class="metric-bar">
+                <div class="metric-label">
+                  <span>视觉平衡</span>
+                  <strong id="metric-balance-value">待分析</strong>
+                </div>
+                <div class="metric-track">
+                  <div id="metric-balance-bar" class="metric-fill is-empty"></div>
+                </div>
+              </article>
+
+              <article class="metric-bar">
+                <div class="metric-label">
+                  <span>可访问性</span>
+                  <strong id="metric-accessibility-value">待分析</strong>
+                </div>
+                <div class="metric-track">
+                  <div id="metric-accessibility-bar" class="metric-fill is-empty"></div>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="card reveal-card sidebar-review-card">
+            <div class="card-head">
+              <div>
+                <p class="section-kicker">设计风险</p>
+                <h2>风险概览</h2>
+              </div>
+            </div>
+
+            <div class="mini-summary">
+              <strong id="risk-level">待生成</strong>
+              <p id="risk-note">开始分析后显示当前界面的风险判断和关注项。</p>
+            </div>
+
+            <div id="risk-focus-list" class="note-stack">
+              <p class="empty-note">等待分析后展示重点风险。</p>
+            </div>
+          </section>
+
+          <section class="card reveal-card sidebar-review-card">
+            <div class="card-head">
+              <div>
+                <p class="section-kicker">优化优先级</p>
+                <h2>处理顺序</h2>
+              </div>
+            </div>
+
+            <div class="priority-breakdown">
+              <div class="priority-count">
+                <span>高</span>
+                <strong id="priority-high-count">0</strong>
+              </div>
+              <div class="priority-count">
+                <span>中</span>
+                <strong id="priority-medium-count">0</strong>
+              </div>
+              <div class="priority-count">
+                <span>低</span>
+                <strong id="priority-low-count">0</strong>
+              </div>
+            </div>
+
+            <p id="priority-note" class="summary-copy">
+              开始分析后，这里会给出建议的处理顺序。
+            </p>
+          </section>
+
+          <section class="card score-card reveal-card sidebar-diagnosis-card">
+            <div class="card-head">
+              <div>
+                <p class="section-kicker">任务推进判断</p>
+                <h2>可用性诊断</h2>
+              </div>
+            </div>
+
+            <div class="score-topline">
+              <strong id="diagnosis-overall-score">待生成</strong>
+              <span id="diagnosis-grade-badge" class="grade-badge">等待分析</span>
+            </div>
+
+            <p id="diagnosis-score-summary" class="summary-copy">
+              上传截图后，这里会显示任务推进流畅度与核心阻力判断。
+            </p>
+
+            <div class="metric-bars">
+              <article class="metric-bar">
+                <div class="metric-label">
+                  <span>首屏理解成本</span>
+                  <strong id="diag-understanding-value">待分析</strong>
+                </div>
+                <div class="metric-track">
+                  <div id="diag-understanding-bar" class="metric-fill is-empty"></div>
+                </div>
+              </article>
+
+              <article class="metric-bar">
+                <div class="metric-label">
+                  <span>主操作明确度</span>
+                  <strong id="diag-action-value">待分析</strong>
+                </div>
+                <div class="metric-track">
+                  <div id="diag-action-bar" class="metric-fill is-empty"></div>
+                </div>
+              </article>
+
+              <article class="metric-bar">
+                <div class="metric-label">
+                  <span>任务路径清晰度</span>
+                  <strong id="diag-path-value">待分析</strong>
+                </div>
+                <div class="metric-track">
+                  <div id="diag-path-bar" class="metric-fill is-empty"></div>
+                </div>
+              </article>
+
+              <article class="metric-bar">
+                <div class="metric-label">
+                  <span>干扰项密度</span>
+                  <strong id="diag-noise-value">待分析</strong>
+                </div>
+                <div class="metric-track">
+                  <div id="diag-noise-bar" class="metric-fill is-empty"></div>
+                </div>
+              </article>
+
+              <article class="metric-bar">
+                <div class="metric-label">
+                  <span>完成阻力</span>
+                  <strong id="diag-friction-value">待分析</strong>
+                </div>
+                <div class="metric-track">
+                  <div id="diag-friction-bar" class="metric-fill is-empty"></div>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="card reveal-card sidebar-diagnosis-card">
+            <div class="card-head">
+              <div>
+                <p class="section-kicker">阻力等级</p>
+                <h2>核心阻力</h2>
+              </div>
+            </div>
+
+            <div class="mini-summary">
+              <strong id="diagnosis-risk-level">待生成</strong>
+              <p id="diagnosis-risk-note">开始诊断后，这里会显示用户推进任务时最可能遇到的阻力。</p>
+            </div>
+
+            <div id="diagnosis-risk-focus-list" class="note-stack">
+              <p class="empty-note">等待分析后展示重点阻力。</p>
+            </div>
+          </section>
+
+          <section class="card reveal-card sidebar-diagnosis-card">
+            <div class="card-head">
+              <div>
+                <p class="section-kicker">优先动作</p>
+                <h2>处理顺序</h2>
+              </div>
+            </div>
+
+            <div class="priority-breakdown">
+              <div class="priority-count">
+                <span>高</span>
+                <strong id="diagnosis-priority-high-count">0</strong>
+              </div>
+              <div class="priority-count">
+                <span>中</span>
+                <strong id="diagnosis-priority-medium-count">0</strong>
+              </div>
+              <div class="priority-count">
+                <span>低</span>
+                <strong id="diagnosis-priority-low-count">0</strong>
+              </div>
+            </div>
+
+            <p id="diagnosis-priority-note" class="summary-copy">
+              开始诊断后，这里会给出最值得先处理的任务阻力。
+            </p>
+          </section>
+
+          <section class="card reveal-card sidebar-prompt-card">
+            <div class="card-head">
+              <div>
+                <p class="section-kicker">风格标签</p>
+                <h2>风格概览</h2>
+              </div>
+            </div>
+
+            <div class="mini-summary">
+              <strong id="prompt-status-title">即将上线</strong>
+              <p id="prompt-status-copy">
+                风格提示词能力正在整理中，正式部署前暂不开放。
+              </p>
+            </div>
+
+            <div class="tag-group-stack">
+              <section class="tag-group">
+                <span class="tag-group-title">风格标签</span>
+                <div id="prompt-style-tags" class="tag-list">
+                  <span class="tag-chip is-empty">即将上线</span>
+                </div>
+              </section>
+
+              <section class="tag-group">
+                <span class="tag-group-title">色彩标签</span>
+                <div id="prompt-color-tags" class="tag-list">
+                  <span class="tag-chip is-empty">即将上线</span>
+                </div>
+              </section>
+
+              <section class="tag-group">
+                <span class="tag-group-title">光影标签</span>
+                <div id="prompt-lighting-tags" class="tag-list">
+                  <span class="tag-chip is-empty">即将上线</span>
+                </div>
+              </section>
+
+              <section class="tag-group">
+                <span class="tag-group-title">构图标签</span>
+                <div id="prompt-composition-tags" class="tag-list">
+                  <span class="tag-chip is-empty">即将上线</span>
+                </div>
+              </section>
+            </div>
+
+            <p id="prompt-side-note" class="empty-note">
+              当前版本先开放界面评审与可用性诊断，首页可正常展示与使用。
+            </p>
+          </section>
+        </aside>
+      </div>
+    </div>
+
+    <canvas id="analysis-canvas" hidden></canvas>
+  </body>
+</html>
